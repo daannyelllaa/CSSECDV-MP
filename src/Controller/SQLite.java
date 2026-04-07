@@ -229,6 +229,18 @@ public class SQLite {
         }
     }
     
+    public void updateUserPassword(String username, String hashedPassword) {
+        String sql = "UPDATE users SET password=? WHERE username=?";
+        try (Connection conn = DriverManager.getConnection(driverURL);
+              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, hashedPassword);
+            pstmt.setString(2, username);
+            pstmt.executeUpdate();
+        } catch (Exception ex) {
+            // Generic error suppression
+        }
+    }
+    
     
     public ArrayList<History> getHistory(){
         String sql = "SELECT id, username, name, stock, timestamp FROM history";

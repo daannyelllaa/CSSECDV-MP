@@ -243,20 +243,93 @@ public class MgmtUser extends javax.swing.JPanel {
 
     private void chgpassBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chgpassBtnActionPerformed
         if(table.getSelectedRow() >= 0){
-            JTextField password = new JPasswordField();
-            JTextField confpass = new JPasswordField();
-            designer(password, "PASSWORD");
-            designer(confpass, "CONFIRM PASSWORD");
+            String targetUser = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
             
-            Object[] message = {
-                "Enter New Password:", password, confpass
-            };
-
-            int result = JOptionPane.showConfirmDialog(null, message, "CHANGE PASSWORD", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
+            JPasswordField currentPassFld = new JPasswordField();
+            designer(currentPassFld, "CURRENT PASSWORD");
             
-            if (result == JOptionPane.OK_OPTION) {
-                System.out.println(password.getText());
-                System.out.println(confpass.getText());
+            int reAuthResult = JOptionPane.showConfirmDialog(null, 
+                    new Object[]{"Re-authentication required.\nEnter CURRENT passwrod for: " + targetUser, currentPassFld},
+                    "Re-Authentiation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
+            
+            if (reAuthResult != JOptionPane.OK_OPTION) return;
+            
+            String currentPass = new String(currentPassFld.getPassword());
+            Model.User target = sqlite.getUser(targetUser);
+            
+            if (target == null || !Controller.PasswordUtil.verifyPassword(currentPass, target.getPassword())) {
+                JOptionPane.showMessageDialog(null, 
+                        "Re-authentication failed.",
+                        "Access Denied", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("REAUTH_FAIL", targetUser,
+                        "Failed re-authentication before password change",
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            JPasswordField newPassFld = new JPasswordField();
+            JPasswordField confPassFld = new JPasswordField();
+            designer(newPassFld, "NEW PASSWORD");
+            designer(confPassFld, "CONFIRM PASSWORD");
+            
+            int result = JOptionPane.showConfirmDialog(null,
+                    new Object[]{"Enter New Password:", newPassFld, "Confirm Password:", confPassFld},
+                    "Change Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
+            
+            if (result != JOptionPane.OK_OPTION) return;
+            
+            String newPass = new String(newPassFld.getPassword());
+            String confPass = new String(confPassFld.getPassword());
+            
+            if (newPass.length() < 8 || newPass.length() > 64) {
+                JOptionPane.showMessageDialog(null, 
+                        "Password must be between 8 and 64 characters.", 
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", targetUser, 
+                        "Password change: length out of range",
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            boolean hasUpper = java.util.regex.Pattern.compile("[A-Z]").matcher(newPass).find();
+            boolean hasLower = java.util.regex.Pattern.compile("[a-z]").matcher(newPass).find();
+            boolean hasDigit = java.util.regex.Pattern.compile("[0-9]").matcher(newPass).find();
+            boolean hasSpecial = java.util.regex.Pattern.compile("[^a-zA-Z0-9]").matcher(newPass).find();
+            
+            if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+                JOptionPane.showMessageDialog(null,
+                        "Password must contain at least one uppercase letter, \n" 
+                        + "one lowercase letter, one digit, and one special character.",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", targetUser, 
+                        "Password change: does not meet policy requirements",
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            if (!newPass.equals(confPass)) {
+                JOptionPane.showMessageDialog(null,
+                        "Passwords do not match.",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", targetUser,
+                        "Password change: confirmation mismatch",
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            try {
+                String hashed = Controller.PasswordUtil.hashPassword(newPass);
+                sqlite.updateUserPassword(targetUser, hashed);
+                sqlite.addLogs("PASS_CHANGE", targetUser, 
+                        "Password successfully changed by admin", 
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                JOptionPane.showMessageDialog(null,
+                        "Password changed successfully.",
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null,
+                        "An unexpected error occured. Please try again.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_chgpassBtnActionPerformed
