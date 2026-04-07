@@ -185,21 +185,53 @@ public class Frame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void adminBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adminBtnActionPerformed
+        if (loggedInUser == null || loggedInUser.getRole() != 5) {
+            main.sqlite.addLogs("UNAUTHORIZED",
+                    loggedInUser != null ? loggedInUser.getUsername() : "unkown",
+                    "Attempted to access Admin panel without Role 5",
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            JOptionPane.showMessageDialog(this, "Access denied.");
+            return;
+        }
         adminHomePnl.showPnl("home");
         contentView.show(Content, "adminHomePnl");
     }//GEN-LAST:event_adminBtnActionPerformed
 
     private void managerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managerBtnActionPerformed
+        if (loggedInUser == null || loggedInUser.getRole() != 4) {
+            main.sqlite.addLogs("UNAUTHORIZED",
+                    loggedInUser != null ? loggedInUser.getUsername() : "unkown",
+                    "Attempted to access Manager panel without Role 4",
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            JOptionPane.showMessageDialog(this, "Access denied.");
+            return;
+        }
         managerHomePnl.showPnl("home");
         contentView.show(Content, "managerHomePnl");
     }//GEN-LAST:event_managerBtnActionPerformed
 
     private void staffBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_staffBtnActionPerformed
+        if (loggedInUser == null || loggedInUser.getRole() != 3) {
+            main.sqlite.addLogs("UNAUTHORIZED",
+                    loggedInUser != null ? loggedInUser.getUsername() : "unkown",
+                    "Attempted to access Staff panel without Role 3",
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            JOptionPane.showMessageDialog(this, "Access denied.");
+            return;
+        }
         staffHomePnl.showPnl("home");
         contentView.show(Content, "staffHomePnl");
     }//GEN-LAST:event_staffBtnActionPerformed
 
     private void clientBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientBtnActionPerformed
+        if (loggedInUser == null || loggedInUser.getRole() != 2) {
+            main.sqlite.addLogs("UNAUTHORIZED",
+                    loggedInUser != null ? loggedInUser.getUsername() : "unkown",
+                    "Attempted to access Client panel without Role 2",
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            JOptionPane.showMessageDialog(this, "Access denied.");
+            return;
+        }
         clientHomePnl.showPnl("home");
         contentView.show(Content, "clientHomePnl");
     }//GEN-LAST:event_clientBtnActionPerformed
