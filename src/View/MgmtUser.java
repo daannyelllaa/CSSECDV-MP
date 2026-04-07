@@ -189,8 +189,16 @@ public class MgmtUser extends javax.swing.JPanel {
                 "EDIT USER ROLE", JOptionPane.QUESTION_MESSAGE, null, options, options[(int)tableModel.getValueAt(table.getSelectedRow(), 2) - 1]);
             
             if(result != null){
-                System.out.println(tableModel.getValueAt(table.getSelectedRow(), 0));
-                System.out.println(result.charAt(0));
+               int newRole = Integer.parseInt(result.substring(0, 1));
+               if (newRole < 1 || newRole > 5) {
+                   JOptionPane.showMessageDialog(null, "Invalid role.");
+                   return;
+               }
+               String targetUser = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
+               sqlite.updateUserRole(targetUser, newRole);
+               sqlite.addLogs("ROLE_CHANGE", targetUser, "Role changed to " + newRole, 
+                       new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+               init();
             }
         }
     }//GEN-LAST:event_editRoleBtnActionPerformed
@@ -200,7 +208,11 @@ public class MgmtUser extends javax.swing.JPanel {
             int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete " + tableModel.getValueAt(table.getSelectedRow(), 0) + "?", "DELETE USER", JOptionPane.YES_NO_OPTION);
             
             if (result == JOptionPane.YES_OPTION) {
-                System.out.println(tableModel.getValueAt(table.getSelectedRow(), 0));
+                String targetUser = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
+                sqlite.removeUser(targetUser);
+                sqlite.addLogs("USER_DELETE", targetUser, "User deleted", 
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                init();
             }
         }
     }//GEN-LAST:event_deleteBtnActionPerformed
@@ -215,7 +227,16 @@ public class MgmtUser extends javax.swing.JPanel {
             int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to " + state + " " + tableModel.getValueAt(table.getSelectedRow(), 0) + "?", "DELETE USER", JOptionPane.YES_NO_OPTION);
             
             if (result == JOptionPane.YES_OPTION) {
-                System.out.println(tableModel.getValueAt(table.getSelectedRow(), 0));
+               String targetUser = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
+               int currentLocked = Integer.parseInt(tableModel.getValueAt(table.getSelectedRow(), 3) + "");
+               if (currentLocked == 1) {
+                   sqlite.toggleUserLock(targetUser, 0, 2);
+               } else {
+                   sqlite.toggleUserLock(targetUser, 1, 1);
+               }
+               sqlite.addLogs("LOCK_TOGGLE", targetUser, "Account" + (currentLocked == 1 ? "unlocked" : "locked"),
+                       new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+               init();
             }
         }
     }//GEN-LAST:event_lockBtnActionPerformed

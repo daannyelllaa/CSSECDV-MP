@@ -204,6 +204,31 @@ public class SQLite {
         }
     }
     
+    public void updateUserRole(String username, int newRole) {
+        String sql = "UPDATE users SET role=? WHERE username=?";
+        try (Connection conn = DriverManager.getConnection(driverURL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, newRole);
+            pstmt.setString(2, username);
+            pstmt.executeUpdate();
+        } catch (Exception ex) {
+            // Generic error suppression
+        }
+    }
+    
+    public void toggleUserLock(String username, int lockedState, int roleCode) {
+        String sql = "UPDATE users SET locked=?, role=? WHERE username=?";
+        try (Connection conn = DriverManager.getConnection(driverURL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, lockedState);
+            pstmt.setInt(2, roleCode);
+            pstmt.setString(3, username);
+            pstmt.executeUpdate();
+        } catch (Exception ex) {
+            // Generic error suppression
+        }
+    }
+    
     
     public ArrayList<History> getHistory(){
         String sql = "SELECT id, username, name, stock, timestamp FROM history";
