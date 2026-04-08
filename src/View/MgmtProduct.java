@@ -7,6 +7,7 @@ package View;
 
 import Controller.SQLite;
 import Model.Product;
+import java.awt.HeadlessException;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ import javax.swing.table.DefaultTableModel;
 public class MgmtProduct extends javax.swing.JPanel {
 
     public SQLite sqlite;
+    public Frame frame;
     public DefaultTableModel tableModel;
     
     public MgmtProduct(SQLite sqlite) {
@@ -175,15 +177,61 @@ public class MgmtProduct extends javax.swing.JPanel {
 
     private void purchaseBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_purchaseBtnActionPerformed
         if(table.getSelectedRow() >= 0){
+            String productName = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
+            int availableStock = (int) tableModel.getValueAt(table.getSelectedRow(), 1);
+            double price = Double.parseDouble(tableModel.getValueAt(table.getSelectedRow(), 2).toString());
+            
             JTextField stockFld = new JTextField("0");
             designer(stockFld, "PRODUCT STOCK");
 
             Object[] message = {
-                "How many " + tableModel.getValueAt(table.getSelectedRow(), 0) + " do you want to purchase?", stockFld
+                "How many " + productName + " do you want to purchase?\n(Available: " + availableStock + ")", stockFld
             };
 
             int result = JOptionPane.showConfirmDialog(null, message, "PURCHASE PRODUCT", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
-
+            
+            if (result != JOptionPane.OK_OPTION) return;
+            
+            // quanityt must be valid integer
+            int quantity;
+            try {
+                quantity = Integer.parseInt(stockFld.getText().trim());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Quantity must be a whole number.",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), "Purchase: non-integer quantity entered", 
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            // range 1-9999
+            if (quantity < 1 || quantity > 9999) {
+                JOptionPane.showMessageDialog(null, "Quantity must be between 1 and 9999.", 
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), "Purchase: quantity out of range (" + quantity + ")",
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            if (quantity > availableStock) {
+                JOptionPane.showMessageDialog(null, "Not enough stock available.",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            try {
+                String ts = new java.sql.Timestamp(new java.util.Date().getTime()).toString();
+                sqlite.addHistory(getCurrentUsername(), productName, quantity, ts);
+                sqlite.updateProduct(productName, productName, availableStock - quantity, price);
+                sqlite.addLogs("PURCHASE", getCurrentUsername(), 
+                        "Purchased " + quantity + " of " + productName, ts);
+                init();
+                JOptionPane.showMessageDialog(null, "Purchase successful.",
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
             if (result == JOptionPane.OK_OPTION) {
                 System.out.println(stockFld.getText());
             }
@@ -204,16 +252,83 @@ public class MgmtProduct extends javax.swing.JPanel {
         };
 
         int result = JOptionPane.showConfirmDialog(null, message, "ADD PRODUCT", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
-
-        if (result == JOptionPane.OK_OPTION) {
-            System.out.println(nameFld.getText());
-            System.out.println(stockFld.getText());
-            System.out.println(priceFld.getText());
+        
+        if (result != JOptionPane.OK_OPTION) return;
+        
+        String name  = nameFld.getText().trim();
+        String stockStr = stockFld.getText().trim();
+        String priceStr = priceFld.getText().trim();
+        
+        if (name.isEmpty() || name.length() > 100 || !name.matches("^[a-zA-Z0-9 ]+$")) {
+            JOptionPane.showMessageDialog(null,
+                    "Product name must be 1-100 alphanumeric characters.",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), 
+                    "Add product: invalid name format", 
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            return;
+        }
+        
+        int stock;
+        try {
+            stock = Integer.parseInt(stockStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Stock must be a whole number.",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), 
+                    "Add product: non-integer stock entered", 
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            return;
+        }
+        
+        if (stock < 0 || stock > 9999) {
+            JOptionPane.showMessageDialog(null, "Stock must be between 0 and 9999.",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), 
+                    "Add product: stock out of range (" + stock + ")", 
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            return;
+        }
+        
+        double price;
+        try {
+            price = Double.parseDouble(priceStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Price must be a valid number.",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), 
+                    "Add product: non-numeric price entered",
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            return;
+        }        
+        
+        if (price <= 0) {
+           JOptionPane.showMessageDialog(null, "Price must be greater than 0.",
+                   "Validation Error", JOptionPane.WARNING_MESSAGE);
+           sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(),
+                   "Add product: non-numeric price entered", 
+                   new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+           return;
+        }
+        
+        try {
+            String ts = new java.sql.Timestamp(new java.util.Date().getTime()).toString();
+            sqlite.addProduct(name, stock, price);
+            sqlite.addLogs("PRODUCT_ADD", getCurrentUsername(),
+                    "Added product " + name, ts);
+            init();
+            JOptionPane.showMessageDialog(null, "Product added successfully.",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_addBtnActionPerformed
 
     private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
         if(table.getSelectedRow() >= 0){
+            String oldName = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
+            
             JTextField nameFld = new JTextField(tableModel.getValueAt(table.getSelectedRow(), 0) + "");
             JTextField stockFld = new JTextField(tableModel.getValueAt(table.getSelectedRow(), 1) + "");
             JTextField priceFld = new JTextField(tableModel.getValueAt(table.getSelectedRow(), 2) + "");
@@ -227,25 +342,109 @@ public class MgmtProduct extends javax.swing.JPanel {
             };
 
             int result = JOptionPane.showConfirmDialog(null, message, "EDIT PRODUCT", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
-
-            if (result == JOptionPane.OK_OPTION) {
-                System.out.println(nameFld.getText());
-                System.out.println(stockFld.getText());
-                System.out.println(priceFld.getText());
+            
+            if (result != JOptionPane.OK_OPTION) return;
+            
+            String name = nameFld.getText().trim();
+            String stockStr = stockFld.getText().trim();
+            String priceStr = priceFld.getText().trim();
+            
+            if (name.isEmpty() || name.length() > 100 || !name.matches("^[a-zA-Z0-9 ]+$")) {
+                JOptionPane.showMessageDialog(null,
+                        "Product name must be 1-100 alphanumeric characters.",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(),
+                        "Edit product: invalid name format",
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            int stock;
+            try {
+                stock = Integer.parseInt(stockStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Stock must be a whole number.",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), 
+                        "Edit product: non-integer stock entered", 
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            if (stock < 0 || stock > 9999) {
+                JOptionPane.showMessageDialog(null, "Stock must be between 0 and 9999.",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), 
+                        "Edit product: stock out of range (" + stock + ")", 
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            double price;
+            try {
+                price = Double.parseDouble(priceStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Price must be a valid number.",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(),
+                        "Edit product: non-numeric price entered",
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            if (price <= 0) {
+                JOptionPane.showMessageDialog(null, "Price must be greater than 0.",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), 
+                        "Edit product: price not positive (" + price + ")", 
+                        new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+                return;
+            }
+            
+            try {
+                String ts = new java.sql.Timestamp(new java.util.Date().getTime()).toString();
+                sqlite.updateProduct(oldName, name, stock, price);
+                sqlite.addLogs("PRODUCT_EDIT", getCurrentUsername(), 
+                        "Edited product: " + oldName + "->" + name, ts);
+                init();
+                JOptionPane.showMessageDialog(null, "Product updated successfully.",
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_editBtnActionPerformed
 
     private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
         if(table.getSelectedRow() >= 0){
+            String productName = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
+            
             int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete " + tableModel.getValueAt(table.getSelectedRow(), 0) + "?", "DELETE PRODUCT", JOptionPane.YES_NO_OPTION);
             
             if (result == JOptionPane.YES_OPTION) {
-                System.out.println(tableModel.getValueAt(table.getSelectedRow(), 0));
+                try {
+                    String ts = new java.sql.Timestamp(new java.util.Date().getTime()).toString();
+                    sqlite.deleteProduct(productName);
+                    sqlite.addLogs("PRODUCT_DELETE", getCurrentUsername(), 
+                            "Deleted product: " + productName, ts);
+                    init();
+                    JOptionPane.showMessageDialog(null, "Product deleted successfully.",
+                            "Success", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "An unexpected error occurred. Please try again.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
     }//GEN-LAST:event_deleteBtnActionPerformed
-
+    
+    private String getCurrentUsername() {
+        if (frame != null && frame.loggedInUser != null) {
+            return frame.loggedInUser.getUsername();
+        }
+        return "unknown";
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addBtn;
