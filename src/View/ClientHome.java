@@ -20,7 +20,8 @@ import javax.swing.table.DefaultTableModel;
  * @author BeepXD
  */
 public class ClientHome extends javax.swing.JPanel {
-
+    
+    public Frame frame;
     public MgmtHistory mgmtHistory;
     public MgmtLogs mgmtLogs;
     public MgmtProduct mgmtProduct;
@@ -175,6 +176,9 @@ public class ClientHome extends javax.swing.JPanel {
     }//GEN-LAST:event_productsBtnActionPerformed
 
     private void historyBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_historyBtnActionPerformed
+        if (frame != null && frame.loggedInUser != null) {
+            mgmtHistory.setUsernameFilter(frame.loggedInUser.getUsername());
+        }
         mgmtHistory.init();
         usersBtn.setForeground(Color.black);
         productsBtn.setForeground(Color.black);

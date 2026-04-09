@@ -265,6 +265,7 @@ public class Frame extends javax.swing.JFrame {
         
         adminHomePnl.init(main.sqlite);
         clientHomePnl.init(main.sqlite);
+        clientHomePnl.frame = this;
         managerHomePnl.init(main.sqlite);
         staffHomePnl.init(main.sqlite);
         
