@@ -36,6 +36,16 @@ public class MgmtProduct extends javax.swing.JPanel {
 //        editBtn.setVisible(false);
 //        deleteBtn.setVisible(false);
     }
+    
+    public void setRole(int role) {
+        // only client can purchase
+        purchaseBtn.setVisible(role == 2);
+        boolean canManage = (role == 3 || role == 4);
+        
+        addBtn.setVisible(canManage);
+        editBtn.setVisible(canManage);
+        deleteBtn.setVisible(canManage);
+    }
 
     public void init(){
         //      CLEAR TABLE

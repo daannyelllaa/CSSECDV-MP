@@ -36,6 +36,7 @@ public class StaffHome extends javax.swing.JPanel {
         mgmtHistory = new MgmtHistory(sqlite);
         mgmtLogs = new MgmtLogs(sqlite);
         mgmtProduct = new MgmtProduct(sqlite);
+        mgmtProduct.setRole(3);
         mgmtUser = new MgmtUser(sqlite);
     
         Content.setLayout(contentView);
