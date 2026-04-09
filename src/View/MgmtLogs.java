@@ -9,6 +9,9 @@ import Controller.SQLite;
 import Model.Logs;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
  *
@@ -141,6 +144,18 @@ public class MgmtLogs extends javax.swing.JPanel {
             return; 
         }
         if (!frame.checkAccess(5)) return;
+        
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to clear all logs? This cannot be undone.",
+                "Clear Logs", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        
+        if (confirm != JOptionPane.YES_OPTION) return;
+        
+        sqlite.clearLogs();
+        sqlite.addLogs("LOGS_CLEARED", frame.loggedInUser.getUsername(), 
+                "All logs cleared by administrator", 
+                new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+        init();
     }//GEN-LAST:event_clearBtnActionPerformed
 
     private void debugBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugBtnActionPerformed

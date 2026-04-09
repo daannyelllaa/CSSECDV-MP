@@ -266,6 +266,16 @@ public class SQLite {
         }
     }
     
+    public void clearLogs() {
+        String sql = "DELETE FROM logs";
+        try (Connection conn = DriverManager.getConnection(driverURL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.executeUpdate();
+        } catch (Exception ex) {
+            // Generic error suppression
+        }
+    }
+    
     public ArrayList<History> getHistory(){
         String sql = "SELECT id, username, name, stock, timestamp FROM history";
         ArrayList<History> histories = new ArrayList<History>();
