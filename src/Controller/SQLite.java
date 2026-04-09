@@ -623,7 +623,7 @@ public class SQLite {
      * Retrieve a single user by username.
      * Returns null if the username does not exist.
      */
-    public User getUser(String username) {
+    public User getUser(String username) throws Exception{
         String sql = "SELECT id, username, password, role, locked, failed_attempts, last_login FROM users WHERE username=?";
         User user = null;
         try (Connection conn = DriverManager.getConnection(driverURL);
@@ -647,6 +647,7 @@ public class SQLite {
             }
         } catch (Exception ex) {
             System.out.println("[getUser] Exception for " + username + ": " + ex.getMessage());
+            throw ex;
         }
         return user;
     }
