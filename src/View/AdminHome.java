@@ -20,12 +20,12 @@ import javax.swing.table.DefaultTableModel;
  * @author BeepXD
  */
 public class AdminHome extends javax.swing.JPanel {
-
+    
+    public Frame frame;
     public MgmtHistory mgmtHistory;
     public MgmtLogs mgmtLogs;
     public MgmtProduct mgmtProduct;
     public MgmtUser mgmtUser;
-    public Frame frame;
     
     private CardLayout contentView = new CardLayout();
     
@@ -168,7 +168,13 @@ public class AdminHome extends javax.swing.JPanel {
     }//GEN-LAST:event_usersBtnActionPerformed
 
     private void productsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_productsBtnActionPerformed
+        if (frame == null || !frame.checkAccessMult(3, 4)) {
+            contentView.show(Content, "home"); // redirect to safe panel
+            return;
+        }
+        
         if (frame != null && !frame.checkDatabase()) return;
+        
         mgmtProduct.init();
         usersBtn.setForeground(Color.black);
         productsBtn.setForeground(Color.red);
@@ -178,7 +184,13 @@ public class AdminHome extends javax.swing.JPanel {
     }//GEN-LAST:event_productsBtnActionPerformed
 
     private void historyBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_historyBtnActionPerformed
+        if (frame == null || !frame.checkAccessMult(2, 4)) {
+            contentView.show(Content, "home"); // redirect to safe panel
+            return;
+        }
+        
         if (frame != null && !frame.checkDatabase()) return;
+
         mgmtHistory.init();
         usersBtn.setForeground(Color.black);
         productsBtn.setForeground(Color.black);

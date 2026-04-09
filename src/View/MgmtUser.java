@@ -280,7 +280,14 @@ public class MgmtUser extends javax.swing.JPanel {
             if (reAuthResult != JOptionPane.OK_OPTION) return;
             
             String currentPass = new String(currentPassFld.getPassword());
-            Model.User target = sqlite.getUser(targetUser);
+            Model.User target = null;
+            
+            try {
+                target = sqlite.getUser(targetUser);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Error retrievng user data.");
+                return;
+            }
             
             if (target == null || !Controller.PasswordUtil.verifyPassword(currentPass, target.getPassword())) {
                 JOptionPane.showMessageDialog(null, 

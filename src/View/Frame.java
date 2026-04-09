@@ -234,6 +234,10 @@ public class Frame extends javax.swing.JFrame {
         this.main = controller;
         loginPnl.frame = this;
         registerPnl.frame = this;
+        adminHomePnl.frame = this;
+        managerHomePnl.frame = this;
+        staffHomePnl.frame = this;
+        clientHomePnl.frame = this;
         
         adminHomePnl.init(main.sqlite);
         adminHomePnl.frame = this;
@@ -260,7 +264,7 @@ public class Frame extends javax.swing.JFrame {
         adminHomePnl.mgmtLogs.frame = this;
         clientHomePnl.mgmtLogs.frame = this;
         managerHomePnl.mgmtLogs.frame = this;
-        staffHomePnl.mgmtLogs.frame = this;
+        staffHomePnl.mgmtLogs.frame = this;       
         
         Container.setLayout(frameView);
         Container.add(loginPnl, "loginPnl");

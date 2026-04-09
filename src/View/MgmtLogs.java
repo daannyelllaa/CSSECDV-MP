@@ -35,12 +35,6 @@ public class MgmtLogs extends javax.swing.JPanel {
     }
 
     public void init(){
-        if (frame == null || !frame.checkAccess(5)) {
-            for (int nCtr = tableModel.getRowCount(); nCtr > 0; nCtr--) {
-                tableModel.removeRow(0);
-            }
-            return;
-        }
         //      CLEAR TABLE
         for(int nCtr = tableModel.getRowCount(); nCtr > 0; nCtr--){
             tableModel.removeRow(0);
