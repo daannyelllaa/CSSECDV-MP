@@ -89,14 +89,14 @@ public class Login extends javax.swing.JPanel {
         
         if (username.length() < 3 || username.length() > 20) {
             javax.swing.JOptionPane.showMessageDialog(this,
-                    "Invalid username length (must be 3-20 characters).",
+                    "Invalid username and/or password.",
                     "Login Error", javax.swing.JOptionPane.ERROR_MESSAGE);
             return;
         }
         
         if (password.length() < 8 || password.length() > 64) {
             javax.swing.JOptionPane.showMessageDialog(this, 
-                "Invalid password length (Must be 8-64 characters).", 
+                "Invalid username and/or password.", 
                 "Login Error", javax.swing.JOptionPane.ERROR_MESSAGE);
             passwordFld.setText(""); 
             return;
