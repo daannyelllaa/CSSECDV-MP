@@ -25,6 +25,7 @@ public class SQLite {
             }
         } catch (Exception ex) {
             // Generic error suppression — do not expose internals
+            
         }
     }
     

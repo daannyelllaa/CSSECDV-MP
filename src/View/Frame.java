@@ -463,6 +463,24 @@ public class Frame extends javax.swing.JFrame {
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
+    // =========================================================
+    // DATABASE HEALTH CHECK
+    // =========================================================
+    public boolean checkDatabase() {
+        if (!main.sqlite.isDatabaseValid()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "A database error occurred. Please log in again.",
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            loggedInUser = null;
+            frameView.show(Container, "loginPnl");
+            return false;
+        }
+        return true;
+    }
 
     public User loggedInUser = null;
 

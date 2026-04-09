@@ -158,6 +158,7 @@ public class ClientHome extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void usersBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usersBtnActionPerformed
+       if (frame != null && !frame.checkDatabase()) return; 
         mgmtUser.init();
         usersBtn.setForeground(Color.red);
         productsBtn.setForeground(Color.black);
@@ -176,6 +177,7 @@ public class ClientHome extends javax.swing.JPanel {
     }//GEN-LAST:event_productsBtnActionPerformed
 
     private void historyBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_historyBtnActionPerformed
+       if (frame != null && !frame.checkDatabase()) return; 
         if (frame != null && frame.loggedInUser != null) {
             mgmtHistory.setUsernameFilter(frame.loggedInUser.getUsername());
         }
@@ -188,6 +190,7 @@ public class ClientHome extends javax.swing.JPanel {
     }//GEN-LAST:event_historyBtnActionPerformed
 
     private void logsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logsBtnActionPerformed
+        if (frame != null && !frame.checkDatabase()) return; 
         mgmtLogs.init();
         usersBtn.setForeground(Color.black);
         productsBtn.setForeground(Color.black);
