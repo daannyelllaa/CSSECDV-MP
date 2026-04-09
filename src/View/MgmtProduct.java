@@ -281,9 +281,9 @@ public class MgmtProduct extends javax.swing.JPanel {
         String stockStr = stockFld.getText().trim();
         String priceStr = priceFld.getText().trim();
         
-        if (name.isEmpty() || name.length() > 100 || !name.matches("^[a-zA-Z0-9 ]+$")) {
+        if (name.isEmpty() || name.length() > 70 || !name.matches("^[a-zA-Z0-9 ]+$")) {
             JOptionPane.showMessageDialog(null,
-                    "Product name must be 1-100 alphanumeric characters.",
+                    "Product name must be 1-70 alphanumeric characters.",
                     "Validation Error", JOptionPane.WARNING_MESSAGE);
             sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), 
                     "Add product: invalid name format", 
@@ -324,8 +324,8 @@ public class MgmtProduct extends javax.swing.JPanel {
             return;
         }        
         
-        if (price <= 0) {
-           JOptionPane.showMessageDialog(null, "Price must be greater than 0.",
+        if (price <= 0 || price > 9999999) {
+           JOptionPane.showMessageDialog(null, "Price must be greater than 0 and less than 9,999,999.",
                    "Validation Error", JOptionPane.WARNING_MESSAGE);
            sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(),
                    "Add product: non-numeric price entered", 
@@ -377,9 +377,9 @@ public class MgmtProduct extends javax.swing.JPanel {
             String stockStr = stockFld.getText().trim();
             String priceStr = priceFld.getText().trim();
             
-            if (name.isEmpty() || name.length() > 100 || !name.matches("^[a-zA-Z0-9 ]+$")) {
+            if (name.isEmpty() || name.length() > 70 || !name.matches("^[a-zA-Z0-9 ]+$")) {
                 JOptionPane.showMessageDialog(null,
-                        "Product name must be 1-100 alphanumeric characters.",
+                        "Product name must be 1-70 alphanumeric characters.",
                         "Validation Error", JOptionPane.WARNING_MESSAGE);
                 sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(),
                         "Edit product: invalid name format",
@@ -420,8 +420,8 @@ public class MgmtProduct extends javax.swing.JPanel {
                 return;
             }
             
-            if (price <= 0) {
-                JOptionPane.showMessageDialog(null, "Price must be greater than 0.",
+            if (price <= 0 || price > 9999999) {
+                JOptionPane.showMessageDialog(null, "Price must be greater than 0 and less than 9,999,999.",
                         "Validation Error", JOptionPane.WARNING_MESSAGE);
                 sqlite.addLogs("VALIDATION_FAIL", getCurrentUsername(), 
                         "Edit product: price not positive (" + price + ")", 
