@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 public class MgmtUser extends javax.swing.JPanel {
 
     public SQLite sqlite;
+    public Frame frame;
     public DefaultTableModel tableModel;
     
     public MgmtUser(SQLite sqlite) {
@@ -179,6 +180,12 @@ public class MgmtUser extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void editRoleBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editRoleBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccess(5)) return;
+        
         if(table.getSelectedRow() >= 0){
             String[] options = {"1-DISABLED","2-CLIENT","3-STAFF","4-MANAGER","5-ADMIN"};
             JComboBox optionList = new JComboBox(options);
@@ -204,6 +211,12 @@ public class MgmtUser extends javax.swing.JPanel {
     }//GEN-LAST:event_editRoleBtnActionPerformed
 
     private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccess(5)) return;
+        
         if(table.getSelectedRow() >= 0){
             int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete " + tableModel.getValueAt(table.getSelectedRow(), 0) + "?", "DELETE USER", JOptionPane.YES_NO_OPTION);
             
@@ -218,6 +231,12 @@ public class MgmtUser extends javax.swing.JPanel {
     }//GEN-LAST:event_deleteBtnActionPerformed
 
     private void lockBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lockBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccess(5)) return;
+        
         if(table.getSelectedRow() >= 0){
             String state = "lock";
             if("1".equals(tableModel.getValueAt(table.getSelectedRow(), 3) + "")){
@@ -242,6 +261,12 @@ public class MgmtUser extends javax.swing.JPanel {
     }//GEN-LAST:event_lockBtnActionPerformed
 
     private void chgpassBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chgpassBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccess(5)) return;
+        
         if(table.getSelectedRow() >= 0){
             String targetUser = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
             

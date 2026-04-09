@@ -185,53 +185,25 @@ public class Frame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void adminBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adminBtnActionPerformed
-        if (loggedInUser == null || loggedInUser.getRole() != 5) {
-            main.sqlite.addLogs("UNAUTHORIZED",
-                    loggedInUser != null ? loggedInUser.getUsername() : "unkown",
-                    "Attempted to access Admin panel without Role 5",
-                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
-            JOptionPane.showMessageDialog(this, "Access denied.");
-            return;
-        }
+        if (!checkAccess(5)) return;
         adminHomePnl.showPnl("home");
         contentView.show(Content, "adminHomePnl");
     }//GEN-LAST:event_adminBtnActionPerformed
 
     private void managerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managerBtnActionPerformed
-        if (loggedInUser == null || loggedInUser.getRole() != 4) {
-            main.sqlite.addLogs("UNAUTHORIZED",
-                    loggedInUser != null ? loggedInUser.getUsername() : "unkown",
-                    "Attempted to access Manager panel without Role 4",
-                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
-            JOptionPane.showMessageDialog(this, "Access denied.");
-            return;
-        }
+        if (!checkAccess(4)) return;
         managerHomePnl.showPnl("home");
         contentView.show(Content, "managerHomePnl");
     }//GEN-LAST:event_managerBtnActionPerformed
 
     private void staffBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_staffBtnActionPerformed
-        if (loggedInUser == null || loggedInUser.getRole() != 3) {
-            main.sqlite.addLogs("UNAUTHORIZED",
-                    loggedInUser != null ? loggedInUser.getUsername() : "unkown",
-                    "Attempted to access Staff panel without Role 3",
-                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
-            JOptionPane.showMessageDialog(this, "Access denied.");
-            return;
-        }
+        if (!checkAccess(3)) return;
         staffHomePnl.showPnl("home");
         contentView.show(Content, "staffHomePnl");
     }//GEN-LAST:event_staffBtnActionPerformed
 
     private void clientBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientBtnActionPerformed
-        if (loggedInUser == null || loggedInUser.getRole() != 2) {
-            main.sqlite.addLogs("UNAUTHORIZED",
-                    loggedInUser != null ? loggedInUser.getUsername() : "unkown",
-                    "Attempted to access Client panel without Role 2",
-                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
-            JOptionPane.showMessageDialog(this, "Access denied.");
-            return;
-        }
+        if (!checkAccess(2)) return;
         clientHomePnl.showPnl("home");
         contentView.show(Content, "clientHomePnl");
     }//GEN-LAST:event_clientBtnActionPerformed
@@ -274,6 +246,16 @@ public class Frame extends javax.swing.JFrame {
         managerHomePnl.mgmtProduct.frame = this;
         staffHomePnl.mgmtProduct.frame = this;
         
+        adminHomePnl.mgmtUser.frame = this;
+        clientHomePnl.mgmtUser.frame = this;
+        managerHomePnl.mgmtUser.frame = this;
+        staffHomePnl.mgmtUser.frame = this;
+        
+        adminHomePnl.mgmtLogs.frame = this;
+        clientHomePnl.mgmtLogs.frame = this;
+        managerHomePnl.mgmtLogs.frame = this;
+        staffHomePnl.mgmtLogs.frame = this;
+        
         Container.setLayout(frameView);
         Container.add(loginPnl, "loginPnl");
         Container.add(registerPnl, "registerPnl");
@@ -299,6 +281,46 @@ public class Frame extends javax.swing.JFrame {
     
     public void registerNav(){
         frameView.show(Container, "registerPnl");
+    }
+    
+    /**
+     * Single site-wide authorization check.
+     * Returns true if the logged-in user has exactly the required role.
+     * Logs the violation and shows a denial message if not.
+     * @param requiredRole 
+     * @return true if access granted; false if not
+     */
+    public boolean checkAccess(int requiredRole) {
+        if (loggedInUser == null || loggedInUser.getRole() != requiredRole) {
+            String actor = (loggedInUser != null) ? loggedInUser.getUsername() : "unauthenticated";
+            main.sqlite.addLogs("UNAUTHORIZED", actor, 
+                    "Attempted action requiring Role " + requiredRole + " but has Role " + (loggedInUser != null ? loggedInUser.getRole() : "none"),
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            JOptionPane.showMessageDialog(this, "Access denied.", "Unauthorized", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+    
+    // for actions that allow multiple roles to complete (e.g. product management)
+    public boolean checkAccessMult(int... allowedRoles) {
+        if (loggedInUser == null) {
+            main.sqlite.addLogs("UNAUTHORIZED", "unauthenticated",
+                    "Attempted action without being logged in",
+                    new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+            JOptionPane.showMessageDialog(this, "Access denied.", "Unauthorized",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        for (int role : allowedRoles) {
+            if (loggedInUser.getRole() == role) return true;
+        }
+        main.sqlite.addLogs("UNAUTHORIZED", loggedInUser.getUsername(),
+                "Attempted history action with Role " + loggedInUser.getRole(),
+                new java.sql.Timestamp(new java.util.Date().getTime()).toString());
+        JOptionPane.showMessageDialog(this, "Access denied.", "Unauthorized",
+                JOptionPane.WARNING_MESSAGE);
+        return false;
     }
     
     // =========================================================

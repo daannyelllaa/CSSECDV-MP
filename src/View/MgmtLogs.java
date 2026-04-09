@@ -17,6 +17,7 @@ import javax.swing.table.DefaultTableModel;
 public class MgmtLogs extends javax.swing.JPanel {
 
     public SQLite sqlite;
+    public Frame frame;
     public DefaultTableModel tableModel;
     
     public MgmtLogs(SQLite sqlite) {
@@ -135,10 +136,20 @@ public class MgmtLogs extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void clearBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearBtnActionPerformed
-        
+       if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccess(5)) return;
     }//GEN-LAST:event_clearBtnActionPerformed
 
     private void debugBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccess(5)) return;
+        
         if(sqlite.DEBUG_MODE == 1)
             sqlite.DEBUG_MODE = 0;
         else

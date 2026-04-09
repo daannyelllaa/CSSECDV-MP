@@ -186,6 +186,12 @@ public class MgmtProduct extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void purchaseBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_purchaseBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccess(2)) return;
+        
         if(table.getSelectedRow() >= 0){
             String productName = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
             int availableStock = (int) tableModel.getValueAt(table.getSelectedRow(), 1);
@@ -249,6 +255,12 @@ public class MgmtProduct extends javax.swing.JPanel {
     }//GEN-LAST:event_purchaseBtnActionPerformed
 
     private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccessMult(3, 4)) return;
+        
         JTextField nameFld = new JTextField();
         JTextField stockFld = new JTextField();
         JTextField priceFld = new JTextField();
@@ -336,6 +348,12 @@ public class MgmtProduct extends javax.swing.JPanel {
     }//GEN-LAST:event_addBtnActionPerformed
 
     private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccessMult(3, 4)) return;
+        
         if(table.getSelectedRow() >= 0){
             String oldName = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
             
@@ -427,6 +445,12 @@ public class MgmtProduct extends javax.swing.JPanel {
     }//GEN-LAST:event_editBtnActionPerformed
 
     private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccessMult(3, 4)) return;
+         
         if(table.getSelectedRow() >= 0){
             String productName = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
             

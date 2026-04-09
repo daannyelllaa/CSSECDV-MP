@@ -20,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
 public class MgmtHistory extends javax.swing.JPanel {
 
     public SQLite sqlite;
+    public Frame frame;
     
     private String filterUsername = null;
     public void setUsernameFilter(String username) {
@@ -171,6 +172,12 @@ public class MgmtHistory extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
+        if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccessMult(2, 4)) return;
+        
         JTextField searchFld = new JTextField("0");
         designer(searchFld, "SEARCH USERNAME OR PRODUCT");
 
@@ -215,6 +222,12 @@ public class MgmtHistory extends javax.swing.JPanel {
     }//GEN-LAST:event_searchBtnActionPerformed
 
     private void reloadBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadBtnActionPerformed
+       if (frame == null) { 
+            javax.swing.JOptionPane.showMessageDialog(this, "Session error.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+        if (!frame.checkAccessMult(2, 4)) return;
+        
         init();
     }//GEN-LAST:event_reloadBtnActionPerformed
 
