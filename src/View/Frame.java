@@ -236,10 +236,16 @@ public class Frame extends javax.swing.JFrame {
         registerPnl.frame = this;
         
         adminHomePnl.init(main.sqlite);
+        adminHomePnl.frame = this;
+        
         clientHomePnl.init(main.sqlite);
         clientHomePnl.frame = this;
+        
         managerHomePnl.init(main.sqlite);
+        managerHomePnl.frame = this;
+        
         staffHomePnl.init(main.sqlite);
+        staffHomePnl.frame = this;
         
         adminHomePnl.mgmtProduct.frame = this;
         clientHomePnl.mgmtProduct.frame = this;
@@ -471,8 +477,8 @@ public class Frame extends javax.swing.JFrame {
         if (!main.sqlite.isDatabaseValid()) {
             JOptionPane.showMessageDialog(
                     this,
-                    "A database error occurred. Please log in again.",
-                    "Database Error",
+                    "An unexpected error occurred. Please try again.",
+                    "Error",
                     JOptionPane.ERROR_MESSAGE
             );
             loggedInUser = null;
